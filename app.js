@@ -331,8 +331,18 @@ $('create-group-form').addEventListener('submit', async event => {
     return;
   }
   setBusy(form, true);
-  const { data: group, error: groupError } = await supabase.from('group_chats')
-    .insert({ name, created_by: currentUser.id })
+const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+if (authError || !user) {
+  setBusy(form, false);
+  showNotice(notice, 'Сессия истекла. Выйди из аккаунта и войди снова.', 'error');
+  return;
+}
+
+const { data: group, error: groupError } = await supabase.from('group_chats')
+  .insert({ name, created_by: user.id })
+  .select('id, name, created_by, created_at')
+  .single();
     .select('id, name, created_by, created_at').single();
   if (groupError) {
     setBusy(form, false);
