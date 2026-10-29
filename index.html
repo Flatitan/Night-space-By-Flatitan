@@ -60,6 +60,7 @@
       <aside class="sidebar">
         <div class="side-title">ТВОЁ ПРОСТРАНСТВО</div>
         <button class="nav-item active" data-panel="chat-panel"><span>◉</span> Сообщения</button>
+        <button class="nav-item" data-panel="groups-panel"><span>♧</span> Группы</button>
         <button class="nav-item" data-panel="profile-panel"><span>◎</span> Мой профиль</button>
         <div class="sidebar-bottom">
           <div class="mini-avatar" id="side-avatar">N</div>
@@ -82,6 +83,32 @@
               <div id="messages-list" class="messages-list" aria-live="polite"></div>
               <form id="message-form" class="message-form"><input id="message-input" maxlength="2000" autocomplete="off" placeholder="Напиши сообщение…" aria-label="Сообщение" required /><button class="send-btn" type="submit" aria-label="Отправить сообщение">↑</button></form>
               <p class="chat-hint">Личные сообщения видны только участникам беседы.</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="groups-panel" class="panel groups-layout hidden">
+          <div class="groups-column">
+            <div class="panel-heading"><div><p class="eyebrow">ОБЩАЙТЕСЬ ВМЕСТЕ</p><h2>Группы</h2></div><span class="count-pill" id="groups-count">0</span></div>
+            <form id="create-group-form" class="create-group-form">
+              <label for="group-name-input">Название группы</label>
+              <input id="group-name-input" maxlength="60" minlength="2" placeholder="Например, Друзья" required />
+              <p class="member-pick-title">Добавить участников</p>
+              <div id="group-member-options" class="member-options"><div class="empty-state">Загружаем пользователей…</div></div>
+              <button class="primary-btn" type="submit">Создать группу <span>＋</span></button>
+              <div id="group-create-message" class="notice hidden" role="status"></div>
+            </form>
+            <div class="groups-divider"></div>
+            <p class="member-pick-title">Твои группы</p>
+            <div id="groups-list" class="people-list"><div class="empty-state">Загружаем группы…</div></div>
+          </div>
+          <div class="conversation group-conversation">
+            <div id="group-empty" class="chat-empty"><div class="empty-orbit">♧</div><h3>Создай свою группу</h3><p>Назови группу, выбери участников и общайтесь все вместе.</p></div>
+            <div id="group-active" class="chat-active hidden">
+              <div class="conversation-head"><div class="mini-avatar large" id="group-chat-avatar">♧</div><div><h3 id="group-chat-name">Группа</h3><p id="group-chat-subtitle">Групповой чат</p></div></div>
+              <div id="group-messages-list" class="messages-list" aria-live="polite"></div>
+              <form id="group-message-form" class="message-form"><input id="group-message-input" maxlength="2000" autocomplete="off" placeholder="Напиши в группу…" aria-label="Сообщение в группу" required /><button class="send-btn" type="submit" aria-label="Отправить сообщение в группу">↑</button></form>
+              <p class="chat-hint">Групповые сообщения видны только участникам группы.</p>
             </div>
           </div>
         </div>

@@ -20,8 +20,11 @@ const profileMessage = $('profile-message');
 let currentUser = null;
 let currentProfile = null;
 let selectedPerson = null;
+let selectedGroup = null;
 let people = [];
+let groups = [];
 let messageChannel = null;
+let groupMessageChannel = null;
 let authChannel = null;
 let loadMessagesToken = 0;
 
@@ -65,7 +68,9 @@ function showAuth() {
   authView.classList.remove('hidden');
   appView.classList.add('hidden');
   if (messageChannel && supabase) supabase.removeChannel(messageChannel);
+  if (groupMessageChannel && supabase) supabase.removeChannel(groupMessageChannel);
   messageChannel = null;
+  groupMessageChannel = null;
   currentUser = null;
   currentProfile = null;
   selectedPerson = null;
@@ -76,6 +81,8 @@ async function showApp(user) {
   appView.classList.remove('hidden');
   await loadMyProfile();
   await loadPeople();
+  await loadGroups();
+  renderGroupMemberOptions();
   showPanel('chat-panel');
   subscribeToAuthChanges();
 }
@@ -157,6 +164,218 @@ function renderPeople() {
     list.append(button);
   });
 }
+function renderGroupMemberOptions() {
+  const container = $('group-member-options');
+  if (!container) return;
+  container.replaceChildren();
+  if (!people.length) {
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.textContent = 'Когда появятся другие пользователи, их можно будет добавить.';
+    container.append(empty);
+    return;
+  }
+  people.forEach(person => {
+    const label = document.createElement('label');
+    label.className = 'member-option';
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.value = person.id;
+    checkbox.name = 'group-member';
+    const avatar = document.createElement('span');
+    avatar.className = 'mini-avatar';
+    avatar.textContent = initials(person.display_name);
+    const name = document.createElement('span');
+    name.textContent = person.display_name || 'Пользователь';
+    label.append(checkbox, avatar, name);
+    container.append(label);
+  });
+}
+
+async function loadGroups() {
+  const list = $('groups-list');
+  if (!list || !currentUser) return;
+  list.innerHTML = '<div class="empty-state">Загружаем группы…</div>';
+  const { data, error } = await supabase.from('group_chats')
+    .select('id, name, created_by, created_at')
+    .order('created_at', { ascending: false });
+  if (error) {
+    list.innerHTML = '<div class="empty-state">Не удалось загрузить группы. Проверь SQL для групп.</div>';
+    console.error('Не удалось загрузить группы:', error);
+    return;
+  }
+  groups = data || [];
+  renderGroups();
+}
+
+function renderGroups() {
+  const list = $('groups-list');
+  if (!list) return;
+  $('groups-count').textContent = String(groups.length);
+  list.replaceChildren();
+  if (!groups.length) {
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.textContent = 'Пока нет групп. Создай первую выше!';
+    list.append(empty);
+    return;
+  }
+  groups.forEach(group => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `person ${selectedGroup?.id === group.id ? 'selected' : ''}`;
+    const avatar = document.createElement('span');
+    avatar.className = 'mini-avatar';
+    avatar.textContent = '♧';
+    const info = document.createElement('span');
+    info.className = 'person-info';
+    const name = document.createElement('b');
+    name.textContent = group.name;
+    const sub = document.createElement('small');
+    sub.textContent = group.created_by === currentUser.id ? 'Ты создал эту группу' : 'Групповой чат';
+    info.append(name, sub);
+    button.append(avatar, info);
+    button.addEventListener('click', () => openGroup(group));
+    list.append(button);
+  });
+}
+
+async function openGroup(group) {
+  selectedGroup = group;
+  $('group-empty').classList.add('hidden');
+  $('group-active').classList.remove('hidden');
+  $('group-chat-name').textContent = group.name;
+  $('group-chat-avatar').textContent = initials(group.name);
+  renderGroups();
+  await loadGroupMessages();
+  subscribeToGroupMessages();
+}
+
+async function loadGroupMessages() {
+  if (!selectedGroup) return;
+  const groupId = selectedGroup.id;
+  const { data, error } = await supabase.from('group_messages')
+    .select('id, group_id, sender_id, body, created_at')
+    .eq('group_id', groupId)
+    .order('created_at', { ascending: true })
+    .limit(300);
+  if (error) {
+    console.error(error);
+    $('group-messages-list').textContent = 'Не удалось загрузить сообщения группы. Проверь SQL и политики доступа.';
+    return;
+  }
+  const senderIds = [...new Set((data || []).map(message => message.sender_id))];
+  let nameById = {};
+  if (senderIds.length) {
+    const { data: profiles } = await supabase.from('profiles').select('id, display_name').in('id', senderIds);
+    (profiles || []).forEach(profile => { nameById[profile.id] = profile.display_name || 'Пользователь'; });
+  }
+  const container = $('group-messages-list');
+  container.replaceChildren();
+  (data || []).forEach(message => addGroupMessageBubble(message, nameById[message.sender_id] || 'Пользователь'));
+  container.scrollTop = container.scrollHeight;
+}
+
+function addGroupMessageBubble(message, senderName = 'Пользователь') {
+  const container = $('group-messages-list');
+  if (container.querySelector(`[data-group-message-id="${CSS.escape(message.id)}"]`)) return;
+  const wrap = document.createElement('div');
+  wrap.className = `message ${message.sender_id === currentUser.id ? 'mine' : ''}`;
+  wrap.dataset.groupMessageId = message.id;
+  if (message.sender_id !== currentUser.id) {
+    const author = document.createElement('div');
+    author.className = 'group-message-author';
+    author.textContent = senderName;
+    wrap.append(author);
+  }
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.textContent = message.body;
+  const time = document.createElement('div');
+  time.className = 'message-time';
+  time.textContent = new Date(message.created_at).toLocaleString('ru-RU', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' });
+  wrap.append(bubble, time);
+  container.append(wrap);
+  container.scrollTop = container.scrollHeight;
+}
+
+function subscribeToGroupMessages() {
+  if (groupMessageChannel && supabase) supabase.removeChannel(groupMessageChannel);
+  if (!selectedGroup) return;
+  const groupId = selectedGroup.id;
+  groupMessageChannel = supabase.channel(`group-chat-${groupId}-${Date.now()}`)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'group_messages', filter: `group_id=eq.${groupId}` }, async payload => {
+      const message = payload.new;
+      let name = 'Пользователь';
+      if (message.sender_id !== currentUser.id) {
+        const { data } = await supabase.from('profiles').select('display_name').eq('id', message.sender_id).maybeSingle();
+        name = data?.display_name || name;
+      }
+      if (selectedGroup?.id === groupId) addGroupMessageBubble(message, name);
+    }).subscribe();
+}
+
+$('create-group-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const notice = $('group-create-message');
+  hideNotice(notice);
+  const name = $('group-name-input').value.trim();
+  if (name.length < 2) {
+    showNotice(notice, 'Название группы должно быть не короче 2 символов.', 'error');
+    return;
+  }
+  const memberIds = [...document.querySelectorAll('input[name="group-member"]:checked')].map(input => input.value);
+  if (memberIds.length < 1) {
+    showNotice(notice, 'Выбери хотя бы одного участника, кроме себя.', 'error');
+    return;
+  }
+  setBusy(form, true);
+  const { data: group, error: groupError } = await supabase.from('group_chats')
+    .insert({ name, created_by: currentUser.id })
+    .select('id, name, created_by, created_at').single();
+  if (groupError) {
+    setBusy(form, false);
+    showNotice(notice, `Не удалось создать группу: ${friendlyError(groupError)}`, 'error');
+    return;
+  }
+  const members = [...new Set([currentUser.id, ...memberIds])].map(user_id => ({ group_id: group.id, user_id }));
+  const { error: membersError } = await supabase.from('group_members').insert(members);
+  setBusy(form, false);
+  if (membersError) {
+    showNotice(notice, `Группа создана, но участников добавить не удалось: ${friendlyError(membersError)}. Проверь SQL-политики групп.`, 'error');
+    console.error(membersError);
+    return;
+  }
+  $('group-name-input').value = '';
+  document.querySelectorAll('input[name="group-member"]').forEach(input => { input.checked = false; });
+  showNotice(notice, 'Группа создана! Можно начинать общаться.', 'success');
+  await loadGroups();
+  await openGroup(group);
+});
+
+$('group-message-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  const input = $('group-message-input');
+  const body = input.value.trim();
+  if (!body || !selectedGroup) return;
+  const button = $('group-message-form').querySelector('button');
+  button.disabled = true;
+  const { data, error } = await supabase.from('group_messages').insert({
+    group_id: selectedGroup.id,
+    sender_id: currentUser.id,
+    body
+  }).select('id, group_id, sender_id, body, created_at').single();
+  button.disabled = false;
+  if (error) {
+    alert(`Не удалось отправить сообщение в группу: ${friendlyError(error)}\nПроверь SQL-настройку групп.`);
+    return;
+  }
+  input.value = '';
+  if (data) addGroupMessageBubble(data, currentProfile?.display_name || 'Ты');
+  input.focus();
+});
+
 $('people-search').addEventListener('input', renderPeople);
 
 async function openChat(person) {
