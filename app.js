@@ -331,11 +331,7 @@ $('create-group-form').addEventListener('submit', async event => {
     return;
   }
   setBusy(form, true);
-console.log('GROUP DEBUG', {
-  authError: authError?.message,
-  userId: user?.id,
-  currentUserId: currentUser?.id
-});
+
 
 if (authError || !user) {
   setBusy(form, false);
