@@ -344,6 +344,12 @@ if (authError || !user) {
   return;
 }
 
+console.warn('GROUP DEBUG INFO', {
+  userId: user?.id,
+  currentUserId: currentUser?.id,
+  createdBy: user?.id
+});
+  
 const { data: group, error: groupError } = await supabase.from('group_chats')
   .insert({ name, created_by: user.id })
   .select('id, name, created_by, created_at')
