@@ -334,7 +334,10 @@ $('create-group-form').addEventListener('submit', async event => {
 setBusy(form, true);
 
 const { data: { user }, error: authError } = await supabase.auth.getUser();
-
+console.log('GROUP CHECK', {
+  userId: user?.id,
+  authError: authError?.message
+});
 if (authError || !user) {
   setBusy(form, false);
   showNotice(notice, 'Сессия истекла. Выйди из аккаунта и войди снова.', 'error');
