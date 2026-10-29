@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b1020" />
+  <title>Night Space by Flatitan — аккаунт и чат</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Night Space by Flatitan">
+        <span class="brand-mark">N</span><span>Night Space <small>by Flatitan</small></span>
+      </a>
+      <span class="secure-label"><span class="status-dot"></span> Приватное пространство</span>
+    </header>
+
+    <section id="auth-view" class="auth-layout">
+      <div class="intro">
+        <p class="eyebrow">ТВОЁ ПРОСТРАНСТВО В ИНТЕРНЕТЕ</p>
+        <h1>Общайся.<br /><span>Создавай своё.</span></h1>
+        <p class="intro-copy">Один аккаунт для твоего личного пространства и общения с другими людьми.</p>
+        <div class="feature-list">
+          <div class="feature"><span class="feature-icon">✦</span><span><b>Личный кабинет</b><small>Настрой свой профиль</small></span></div>
+          <div class="feature"><span class="feature-icon">↗</span><span><b>Личные сообщения</b><small>Общайся один на один</small></span></div>
+          <div class="feature"><span class="feature-icon">✓</span><span><b>Подтверждение email</b><small>Подтверди адрес почты</small></span></div>
+        </div>
+      </div>
+
+      <div class="auth-card">
+        <div class="tabs" role="tablist" aria-label="Вход или регистрация">
+          <button class="tab active" id="tab-login" type="button">Войти</button>
+          <button class="tab" id="tab-signup" type="button">Создать аккаунт</button>
+        </div>
+        <div id="auth-message" class="notice hidden" role="status"></div>
+
+        <form id="login-form" class="form">
+          <div class="card-heading"><h2>С возвращением</h2><p>Войди в свой аккаунт, чтобы продолжить.</p></div>
+          <label>Email<input id="login-email" type="email" autocomplete="email" placeholder="you@example.com" required /></label>
+          <label>Пароль<input id="login-password" type="password" autocomplete="current-password" placeholder="Твой пароль" minlength="6" required /></label>
+          <button class="primary-btn" type="submit">Войти <span>→</span></button>
+          <p class="form-foot">Пока нет аккаунта? <button class="text-btn" id="go-signup" type="button">Зарегистрируйся</button></p>
+        </form>
+
+        <form id="signup-form" class="form hidden">
+          <div class="card-heading"><h2>Создай аккаунт</h2><p>Это займёт всего пару минут.</p></div>
+          <label>Имя пользователя<input id="signup-name" type="text" autocomplete="nickname" placeholder="Как к тебе обращаться" minlength="2" maxlength="40" required /></label>
+          <label>Email<input id="signup-email" type="email" autocomplete="email" placeholder="you@example.com" required /></label>
+          <label>Пароль<input id="signup-password" type="password" autocomplete="new-password" placeholder="Минимум 6 символов" minlength="6" required /></label>
+          <button class="primary-btn" type="submit">Создать аккаунт <span>→</span></button>
+          <p class="form-foot">Регистрируясь, ты получишь письмо для подтверждения email.</p>
+        </form>
+      </div>
+    </section>
+
+    <section id="app-view" class="app-view hidden">
+      <aside class="sidebar">
+        <div class="side-title">ТВОЁ ПРОСТРАНСТВО</div>
+        <button class="nav-item active" data-panel="chat-panel"><span>◉</span> Сообщения</button>
+        <button class="nav-item" data-panel="profile-panel"><span>◎</span> Мой профиль</button>
+        <div class="sidebar-bottom">
+          <div class="mini-avatar" id="side-avatar">N</div>
+          <div class="side-user"><b id="side-name">Пользователь</b><small id="side-email"></small></div>
+          <button class="icon-btn" id="logout-btn" title="Выйти" aria-label="Выйти">↪</button>
+        </div>
+      </aside>
+
+      <section class="workspace">
+        <div id="chat-panel" class="panel chat-layout">
+          <div class="people-column">
+            <div class="panel-heading"><div><p class="eyebrow">ТВОИ КОНТАКТЫ</p><h2>Сообщения</h2></div><span class="count-pill" id="people-count">0</span></div>
+            <input id="people-search" class="search-input" type="search" placeholder="Найти пользователя…" />
+            <div id="people-list" class="people-list"><div class="empty-state">Загружаем пользователей…</div></div>
+          </div>
+          <div class="conversation">
+            <div id="chat-empty" class="chat-empty"><div class="empty-orbit">✦</div><h3>Твоё общение начинается здесь</h3><p>Выбери пользователя слева, чтобы открыть личный чат.</p></div>
+            <div id="chat-active" class="chat-active hidden">
+              <div class="conversation-head"><div class="mini-avatar large" id="chat-avatar">?</div><div><h3 id="chat-name">Пользователь</h3><p><span class="status-dot"></span> Личный чат</p></div></div>
+              <div id="messages-list" class="messages-list" aria-live="polite"></div>
+              <form id="message-form" class="message-form"><input id="message-input" maxlength="2000" autocomplete="off" placeholder="Напиши сообщение…" aria-label="Сообщение" required /><button class="send-btn" type="submit" aria-label="Отправить сообщение">↑</button></form>
+              <p class="chat-hint">Личные сообщения видны только участникам беседы.</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="profile-panel" class="panel profile-panel hidden">
+          <p class="eyebrow">АККАУНТ</p><h2>Мой профиль</h2><p class="panel-subtitle">Информация, которую видят другие пользователи.</p>
+          <div class="profile-avatar" id="profile-avatar">N</div>
+          <form id="profile-form" class="profile-form">
+            <label>Имя пользователя<input id="profile-name" type="text" minlength="2" maxlength="40" required /></label>
+            <label>Email<input id="profile-email" type="email" disabled /></label>
+            <div id="email-state" class="email-state"></div>
+            <button class="primary-btn" type="submit">Сохранить изменения <span>→</span></button>
+          </form>
+          <div id="profile-message" class="notice hidden" role="status"></div>
+        </div>
+      </section>
+    </section>
+    <footer class="footer"><span>Night Space by Flatitan · beta</span><span>Создано с заботой о приватности</span></footer>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
