@@ -343,7 +343,6 @@ const { data: group, error: groupError } = await supabase.from('group_chats')
   .insert({ name, created_by: user.id })
   .select('id, name, created_by, created_at')
   .single();
-    .select('id, name, created_by, created_at').single();
   if (groupError) {
     setBusy(form, false);
     showNotice(notice, `Не удалось создать группу: ${friendlyError(groupError)}`, 'error');
