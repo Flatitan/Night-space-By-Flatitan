@@ -331,7 +331,11 @@ $('create-group-form').addEventListener('submit', async event => {
     return;
   }
   setBusy(form, true);
-const { data: { user }, error: authError } = await supabase.auth.getUser();
+console.log('GROUP DEBUG', {
+  authError: authError?.message,
+  userId: user?.id,
+  currentUserId: currentUser?.id
+});
 
 if (authError || !user) {
   setBusy(form, false);
