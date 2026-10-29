@@ -11,7 +11,16 @@ const configured = SUPABASE_URL.startsWith('https://') &&
   !SUPABASE_ANON_KEY.includes('ВСТАВЬ');
 
 const $ = (id) => document.getElementById(id);
-const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+const supabase = configured
+  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: {
+        headers: {
+          apikey: SUPABASE_ANON_KEY
+        }
+      }
+    })
+  : null;;
 
 const authView = $('auth-view');
 const appView = $('app-view');
