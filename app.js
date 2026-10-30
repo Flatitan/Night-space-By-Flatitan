@@ -35,6 +35,67 @@ let groups = [];
 let messageChannel = null;
 let groupMessageChannel = null;
 let authChannel = null;
+let presenceChannel = null;
+let onlineUserIds = new Set();
+
+function updateOnlineUsers() {
+  if (!presenceChannel) return;
+
+  const state = presenceChannel.presenceState();
+  onlineUserIds = new Set(Object.keys(state));
+
+  renderPeople();
+
+  if (selectedPerson) {
+    setOnlineIndicator(
+      $('chat-avatar'),
+      onlineUserIds.has(selectedPerson.id)
+    );
+  }
+}
+
+function setOnlineIndicator(avatar, online) {
+  if (!avatar) return;
+
+  avatar.querySelector('.online-indicator')?.remove();
+
+  const dot = document.createElement('span');
+  dot.className = `online-indicator ${online ? 'online' : 'offline'}`;
+  dot.title = online ? 'В сети' : 'Не в сети';
+
+  avatar.append(dot);
+}
+
+function subscribeToPresence() {
+  if (!supabase || !currentUser) return;
+
+  if (presenceChannel) {
+    supabase.removeChannel(presenceChannel);
+  }
+
+  presenceChannel = supabase.channel('night-space-presence', {
+    config: {
+      presence: {
+        key: currentUser.id
+      }
+    }
+  });
+
+  presenceChannel
+    .on('presence', { event: 'sync' }, updateOnlineUsers)
+    .on('presence', { event: 'join' }, updateOnlineUsers)
+    .on('presence', { event: 'leave' }, updateOnlineUsers)
+    .subscribe(async status => {
+      if (status === 'SUBSCRIBED') {
+        await presenceChannel.track({
+          user_id: currentUser.id,
+          online_at: new Date().toISOString()
+        });
+      } else {
+        console.log('Presence status:', status);
+      }
+    });
+}
 let loadMessagesToken = 0;
 
 function showNotice(el, message, kind = '') {
