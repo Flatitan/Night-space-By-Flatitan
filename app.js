@@ -84,6 +84,43 @@ function subscribeToPresence() {
   presenceChannel
     .on('presence', { event: 'sync' }, updateOnlineUsers)
     .on('presence', { event: 'join' }, updateOnlineUsers)
+    .on('presence', { event: 'leave' }, async (payload) => {
+      updateOnlineUsers();
+
+      const leftUserId = payload.key;
+
+      if (leftUserId) {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ last_seen_at: new Date().toISOString() })
+          .eq('id', leftUserId);
+
+        if (error) console.error('Last seen error:', error);
+      }
+    })
+    .subscribe(async status => {
+      if (status === 'SUBSCRIBED') {
+        await presenceChannel.track({
+          user_id: currentUser.id,
+          online_at: new Date().toISOString()
+        });
+      } else {
+        console.log('Presence status:', status);
+      }
+    });
+}
+
+  presenceChannel = supabase.channel('night-space-presence', {
+    config: {
+      presence: {
+        key: currentUser.id
+      }
+    }
+  });
+
+  presenceChannel
+    .on('presence', { event: 'sync' }, updateOnlineUsers)
+    .on('presence', { event: 'join' }, updateOnlineUsers)
     .on('presence', { event: 'leave' }, updateOnlineUsers)
     .subscribe(async status => {
       if (status === 'SUBSCRIBED') {
@@ -195,7 +232,7 @@ async function loadPeople() {
   const list = $('people-list');
   list.innerHTML = '<div class="empty-state">Загружаем пользователей…</div>';
   const { data, error } = await supabase.from('profiles')
-    .select('id, display_name, email')
+    .select('id, display_name, email, last_seen_at')
     .neq('id', currentUser.id)
     .order('display_name', { ascending: true });
   if (error) {
