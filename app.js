@@ -110,22 +110,6 @@ function subscribeToPresence() {
     });
 }
 
-
-  presenceChannel
-    .on('presence', { event: 'sync' }, updateOnlineUsers)
-    .on('presence', { event: 'join' }, updateOnlineUsers)
-    .on('presence', { event: 'leave' }, updateOnlineUsers)
-    .subscribe(async status => {
-      if (status === 'SUBSCRIBED') {
-        await presenceChannel.track({
-          user_id: currentUser.id,
-          online_at: new Date().toISOString()
-        });
-      } else {
-        console.log('Presence status:', status);
-      }
-    });
-}
 let loadMessagesToken = 0;
 
 function showNotice(el, message, kind = '') {
