@@ -149,6 +149,17 @@ $('tab-signup').addEventListener('click', () => showAuthTab('signup'));
 $('go-signup').addEventListener('click', () => showAuthTab('signup'));
 
 function showAuth() {
+  const userId = currentUser?.id;
+
+if (userId && supabase) {
+  supabase
+    .from('profiles')
+    .update({ last_seen_at: new Date().toISOString() })
+    .eq('id', userId)
+    .then(({ error }) => {
+      if (error) console.error('Last seen error:', error);
+    });
+}
   authView.classList.remove('hidden');
   appView.classList.add('hidden');
   if (messageChannel && supabase) supabase.removeChannel(messageChannel);
