@@ -19,3 +19,27 @@
 .group-message-author{font-size:10px;color:#b8adff;margin:0 0 5px 4px}
 @media(max-width:900px){.groups-layout{grid-template-columns:230px minmax(0,1fr)}}
 @media(max-width:700px){.groups-layout{grid-template-columns:1fr}.groups-column{border-right:0;border-bottom:1px solid #ffffff10;max-height:360px;padding:15px 10px}.member-options{max-height:100px}.group-conversation{min-height:400px}.groups-layout .chat-active{min-height:450px}}
+/* Онлайн-статусы Night Space */
+.mini-avatar {
+  position: relative;
+}
+
+.online-indicator {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 11px;
+  height: 11px;
+  border: 2px solid #101726;
+  border-radius: 50%;
+  z-index: 2;
+}
+
+.online-indicator.online {
+  background: #62d6a5;
+  box-shadow: 0 0 9px #62d6a588;
+}
+
+.online-indicator.offline {
+  background: #657087;
+}
