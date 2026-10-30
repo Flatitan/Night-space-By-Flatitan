@@ -139,6 +139,12 @@ function showAuth() {
   appView.classList.add('hidden');
   if (messageChannel && supabase) supabase.removeChannel(messageChannel);
   if (groupMessageChannel && supabase) supabase.removeChannel(groupMessageChannel);
+  if (presenceChannel && supabase) {
+  supabase.removeChannel(presenceChannel);
+}
+
+presenceChannel = null;
+onlineUserIds.clear();
   messageChannel = null;
   groupMessageChannel = null;
   currentUser = null;
@@ -223,6 +229,8 @@ function renderPeople() {
     const avatar = document.createElement('span');
     avatar.className = 'mini-avatar';
     avatar.textContent = initials(person.display_name);
+    setOnlineIndicator(avatar, onlineUserIds.has(person.id));
+    
     const info = document.createElement('span');
     info.className = 'person-info';
     const name = document.createElement('b');
@@ -256,6 +264,8 @@ function renderGroupMemberOptions() {
     const avatar = document.createElement('span');
     avatar.className = 'mini-avatar';
     avatar.textContent = initials(person.display_name);
+    setOnlineIndicator(avatar, onlineUserIds.has(person.id));
+    
     const name = document.createElement('span');
     name.textContent = person.display_name || 'Пользователь';
     label.append(checkbox, avatar, name);
@@ -476,6 +486,10 @@ async function openChat(person) {
   $('chat-active').classList.remove('hidden');
   $('chat-name').textContent = person.display_name || 'Пользователь';
   $('chat-avatar').textContent = initials(person.display_name);
+  setOnlineIndicator(
+  $('chat-avatar'),
+  onlineUserIds.has(person.id)
+);
   renderPeople();
   await loadMessages();
   subscribeToMessages();
