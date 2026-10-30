@@ -110,13 +110,6 @@ function subscribeToPresence() {
     });
 }
 
-  presenceChannel = supabase.channel('night-space-presence', {
-    config: {
-      presence: {
-        key: currentUser.id
-      }
-    }
-  });
 
   presenceChannel
     .on('presence', { event: 'sync' }, updateOnlineUsers)
