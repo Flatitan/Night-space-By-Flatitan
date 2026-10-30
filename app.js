@@ -147,6 +147,7 @@ function showAuth() {
 }
 async function showApp(user) {
   currentUser = user;
+  subscribeToPresence();
   authView.classList.add('hidden');
   appView.classList.remove('hidden');
   await loadMyProfile();
