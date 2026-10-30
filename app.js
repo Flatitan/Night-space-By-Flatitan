@@ -89,7 +89,7 @@ function subscribeToPresence() {
 
       const leftUserId = payload.key;
 
-      if (leftUserId) {
+      if (leftUserId === currentUser.id) {
         const { error } = await supabase
           .from('profiles')
           .update({ last_seen_at: new Date().toISOString() })
