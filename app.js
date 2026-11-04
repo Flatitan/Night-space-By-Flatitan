@@ -36,6 +36,8 @@ let messageChannel = null;
 let groupMessageChannel = null;
 let authChannel = null;
 let presenceChannel = null;
+let profileChannel = null;
+let lastSeenTimer = null;
 let onlineUserIds = new Set();
 
 function updateOnlineUsers() {
@@ -64,6 +66,73 @@ function setOnlineIndicator(avatar, online) {
   dot.title = online ? 'В сети' : 'Не в сети';
 
   avatar.append(dot);
+}
+
+function formatLastSeen(value) {
+  if (!value) return 'Давно не заходил';
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Время неизвестно';
+
+  const now = new Date();
+  const time = date.toLocaleTimeString('ru-RU', {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  const sameDay = date.toDateString() === now.toDateString();
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+
+  if (sameDay) return `Был сегодня в ${time}`;
+  if (date.toDateString() === yesterday.toDateString()) return `Был вчера в ${time}`;
+
+  return `Был ${date.toLocaleDateString('ru-RU')} в ${time}`;
+}
+
+async function updateOwnLastSeen() {
+  if (!supabase || !currentUser) return;
+
+  const lastSeenAt = new Date().toISOString();
+  const { error } = await supabase
+    .from('profiles')
+    .update({ last_seen_at: lastSeenAt })
+    .eq('id', currentUser.id);
+
+  if (error) {
+    console.error('Не удалось обновить последнее посещение:', error);
+  }
+}
+
+function subscribeToProfileUpdates() {
+  if (!supabase || !currentUser) return;
+
+  if (profileChannel) supabase.removeChannel(profileChannel);
+
+  profileChannel = supabase
+    .channel(`profile-updates-${currentUser.id}`)
+    .on(
+      'postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'profiles' },
+      payload => {
+        const updatedProfile = payload.new;
+        people = people.map(person =>
+          person.id === updatedProfile.id
+            ? { ...person, last_seen_at: updatedProfile.last_seen_at }
+            : person
+        );
+
+        if (selectedPerson?.id === updatedProfile.id) {
+          selectedPerson = {
+            ...selectedPerson,
+            last_seen_at: updatedProfile.last_seen_at
+          };
+        }
+
+        renderPeople();
+      }
+    )
+    .subscribe();
 }
 
 function subscribeToPresence() {
@@ -178,6 +247,10 @@ onlineUserIds.clear();
 }
 async function showApp(user) {
   currentUser = user;
+  await updateOwnLastSeen();
+  if (lastSeenTimer) clearInterval(lastSeenTimer);
+  lastSeenTimer = setInterval(updateOwnLastSeen, 60000);
+  subscribeToProfileUpdates();
   subscribeToPresence();
   authView.classList.add('hidden');
   appView.classList.remove('hidden');
@@ -260,9 +333,11 @@ function renderPeople() {
     info.className = 'person-info';
     const name = document.createElement('b');
     name.textContent = person.display_name || 'Пользователь';
-    const email = document.createElement('small');
-    email.textContent = person.email || '';
-    info.append(name, email);
+    const status = document.createElement('small');
+    status.textContent = onlineUserIds.has(person.id)
+      ? '🟢 В сети'
+      : formatLastSeen(person.last_seen_at);
+    info.append(name, status);
     button.append(avatar, info);
     button.addEventListener('click', () => openChat(person));
     list.append(button);
