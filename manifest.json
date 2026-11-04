@@ -1,0 +1,11 @@
+{
+  "name": "Night Space by Flatitan",
+  "short_name": "Night Space",
+  "description": "Личные и групповые чаты",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b1020",
+  "theme_color": "#0b1020",
+  "orientation": "portrait"
+}
