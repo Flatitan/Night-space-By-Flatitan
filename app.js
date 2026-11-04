@@ -660,7 +660,20 @@ $('message-form').addEventListener('submit', async event => {
     return;
   }
   input.value = '';
-  if (data) addMessageBubble(data);
+  if (data) {
+  addMessageBubble(data);
+
+  supabase.functions.invoke('send-push-notification', {
+    body: {
+      message_id: data.id,
+      recipient_id: selectedPerson.id
+    }
+  }).then(({ error }) => {
+    if (error) console.warn('Push notification error:', error);
+  }).catch(error => {
+    console.warn('Push notification error:', error);
+  });
+}
   input.focus();
 });
 
