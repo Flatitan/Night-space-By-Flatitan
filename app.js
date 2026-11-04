@@ -4,14 +4,24 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 // Эти два значения предназначены для браузера. НИКОГДА не вставляй сюда service_role key.
 const SUPABASE_URL = 'https://pqcfmkqndcoexodvmffn.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_U9QsyEHgwqpM1YcWCnwTdQ_XEoqiXqL';
-
+const VAPID_PUBLIC_KEY = 'BDg8Y--Kttq8RieO1Z0lBPv1GQ6n5PMtnhK6LIDCNiP-LNFIVXVwdYpcdVdpSoxWY-PInCyN8_0gWbPDvcKct1o';
 const configured = SUPABASE_URL.startsWith('https://') &&
   !SUPABASE_URL.includes('ВСТАВЬ') &&
   SUPABASE_ANON_KEY.length > 20 &&
   !SUPABASE_ANON_KEY.includes('ВСТАВЬ');
 
 const $ = (id) => document.getElementById(id);
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding)
+    .replace(/-/g, '+')
+    .replace(/_/g, '/');
 
+  const rawData = atob(base64);
+  return Uint8Array.from(
+    [...rawData].map(char => char.charCodeAt(0))
+  );
+}
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
@@ -35,6 +45,68 @@ const authMessage = $('auth-message');
 const profileMessage = $('profile-message');
 let currentUser = null;
 let currentProfile = null;
+const enableNotificationsButton = $('enable-notifications-btn');
+
+enableNotificationsButton?.addEventListener('click', async () => {
+  try {
+    if (!currentUser) {
+      alert('Сначала войди в аккаунт.');
+      return;
+    }
+
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      alert('Этот браузер не поддерживает push-уведомления.');
+      return;
+    }
+
+    const permission = await Notification.requestPermission();
+
+    if (permission !== 'granted') {
+      alert('Разрешение на уведомления не выдано.');
+      return;
+    }
+
+    const registration = await navigator.serviceWorker.ready;
+
+    let subscription = await registration.pushManager.getSubscription();
+
+    if (!subscription) {
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+      });
+    }
+
+    const subscriptionData = subscription.toJSON();
+
+    const { data: existing, error: findError } = await supabase
+      .from('push_subscriptions')
+      .select('id')
+      .eq('endpoint', subscription.endpoint)
+      .maybeSingle();
+
+    if (findError) throw findError;
+
+    if (!existing) {
+      const { error: insertError } = await supabase
+        .from('push_subscriptions')
+        .insert({
+          user_id: currentUser.id,
+          endpoint: subscription.endpoint,
+          p256dh: subscriptionData.keys.p256dh,
+          auth: subscriptionData.keys.auth
+        });
+
+      if (insertError) throw insertError;
+    }
+
+    alert('Уведомления включены! 🔔');
+    enableNotificationsButton.textContent = '🔔 Уведомления включены';
+  } catch (error) {
+    console.error('Ошибка включения уведомлений:', error);
+    alert('Не удалось включить уведомления: ' + (error.message || error));
+  }
+});
 let selectedPerson = null;
 let selectedGroup = null;
 let people = [];
