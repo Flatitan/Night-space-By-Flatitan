@@ -129,6 +129,26 @@
         <div id="profile-panel" class="panel profile-panel hidden">
           <p class="eyebrow">АККАУНТ</p><h2>Мой профиль</h2><p class="panel-subtitle">Информация, которую видят другие пользователи.</p>
           <div class="profile-avatar" id="profile-avatar">N</div>
+          <div class="avatar-controls">
+  <label class="avatar-upload-btn" for="avatar-file">
+    📷 Загрузить фотографию
+  </label>
+
+  <input
+    type="file"
+    id="avatar-file"
+    accept="image/png,image/jpeg,image/webp"
+    hidden
+  >
+
+  <button
+    type="button"
+    class="avatar-remove-btn"
+    id="avatar-remove-btn"
+  >
+    Удалить фотографию
+  </button>
+</div>
           <div class="account-plan" id="account-plan">
           <span class="plan-dot"></span>
           <span id="account-plan-label">Бесплатный тариф</span>
