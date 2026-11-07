@@ -218,3 +218,15 @@
   background: #8795ad;
   box-shadow: 0 0 9px #8795ad66;
 }
+/* NIGHT SPACE OWNER BADGE */
+.account-plan.owner {
+  background: linear-gradient(135deg, #3a2c16, #1e1a16);
+  border: 1px solid #d9ad53;
+  color: #ffd98a;
+  box-shadow: 0 0 22px #d9ad5330;
+}
+
+.account-plan.owner .plan-dot {
+  background: #f2c45e;
+  box-shadow: 0 0 12px #f2c45e;
+}
