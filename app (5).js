@@ -762,12 +762,13 @@ $('profile-form').addEventListener('submit', async event => {
   }
   const form = event.currentTarget;
   setBusy(form, true);
-  const { error } = await supabase.from('profiles').upsert({
-    id: currentUser.id,
+const { error } = await supabase
+  .from('profiles')
+  .update({
     display_name: displayName,
-    email: currentUser.email,
     updated_at: new Date().toISOString()
-  }, { onConflict: 'id' });
+  })
+  .eq('id', currentUser.id);
   setBusy(form, false);
   if (error) {
     showNotice(profileMessage, `Не удалось сохранить профиль: ${friendlyError(error)}`, 'error');
