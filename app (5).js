@@ -436,7 +436,7 @@ if (person.is_owner) {
       : formatLastSeen(person.last_seen_at);
     info.append(name, status);
     button.append(avatar, info);
-    button.addEventListener('click', () => openChat(person));
+    button.addEventListener('click', () => openPublicProfile(person));
     list.append(button);
   });
 }
@@ -690,6 +690,40 @@ async function openChat(person) {
   renderPeople();
   await loadMessages();
   subscribeToMessages();
+}
+function openPublicProfile(person) {
+  $('public-profile-avatar').textContent = initials(person.display_name);
+  $('public-profile-name').textContent = person.display_name || 'Пользователь';
+
+  const badgeBox = $('public-profile-badge');
+  badgeBox.replaceChildren();
+
+  if (person.is_owner) {
+    const badge = document.createElement('span');
+    badge.className = 'account-badge owner-badge';
+    badge.textContent = 'OWNER';
+    badgeBox.append(badge);
+  } else if (person.plan === 'premium') {
+    const badge = document.createElement('span');
+    badge.className = 'account-badge premium-badge';
+    badge.textContent = 'PREMIUM';
+    badgeBox.append(badge);
+  }
+
+  $('public-profile-status').textContent = onlineUserIds.has(person.id)
+    ? '🟢 Сейчас в сети'
+    : formatLastSeen(person.last_seen_at);
+
+  $('public-profile-chat-btn').onclick = async () => {
+    showPanel('chat-panel');
+    await openChat(person);
+  };
+
+  $('public-profile-back-btn').onclick = () => {
+    showPanel('chat-panel');
+  };
+
+  showPanel('public-profile-panel');
 }
 async function loadMessages() {
   if (!selectedPerson) return;
