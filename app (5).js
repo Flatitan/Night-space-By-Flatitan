@@ -78,7 +78,7 @@ enableNotificationsButton?.addEventListener('click', async () => {
     }
 
     const subscriptionData = subscription.toJSON();
-
+console.log('PUSH TEST: кнопка работает');
     const { data: existing, error: findError } = await supabase
       .from('push_subscriptions')
       .select('id')
