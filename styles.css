@@ -43,3 +43,119 @@
 .online-indicator.offline {
   background: #657087;
 }
+/* NIGHT SPACE — DARK PREMIUM PROFILE */
+
+.profile-panel {
+  max-width: 100%;
+  padding: 42px;
+  background:
+    radial-gradient(ellipse at 15% 10%, #8d80ff18, transparent 45%),
+    linear-gradient(145deg, #141c2d, #0d1422);
+  border: 1px solid #a99cff20;
+  border-radius: 22px;
+  box-shadow: 0 20px 60px #0005;
+  animation: profileAppear .5s ease;
+}
+
+.profile-panel .eyebrow {
+  color: #b4a7ff;
+  letter-spacing: 3px;
+}
+
+.profile-panel h2 {
+  font-size: 30px;
+  letter-spacing: -1px;
+}
+
+.profile-panel .panel-subtitle {
+  max-width: 430px;
+  font-size: 13px;
+  margin-bottom: 30px;
+}
+
+.profile-avatar {
+  width: 104px;
+  height: 104px;
+  border-radius: 30px;
+  font-size: 40px;
+  margin: 30px 0;
+  background: linear-gradient(135deg, #c0b5ff, #7165e8, #526cce);
+  box-shadow: 0 0 35px #9282ff55;
+  border: 1px solid #ffffff35;
+  transition: transform .3s, box-shadow .3s;
+}
+
+.profile-avatar:hover {
+  transform: translateY(-5px) scale(1.04);
+  box-shadow: 0 0 48px #9282ff88;
+}
+
+.profile-form {
+  max-width: 470px;
+  gap: 20px;
+}
+
+.profile-form label {
+  gap: 10px;
+  font-size: 12px;
+  color: #c7c4e5;
+}
+
+.profile-form input {
+  min-height: 49px;
+  border-radius: 13px;
+  background: #090f1c;
+  border-color: #8e80ff30;
+  font-size: 13px;
+}
+
+.profile-form input:focus {
+  border-color: #a99cff;
+  box-shadow: 0 0 0 4px #9486ff20, 0 0 22px #9486ff18;
+}
+
+.profile-form input:disabled {
+  background: #111a2a;
+  color: #8491aa;
+}
+
+.profile-form .primary-btn {
+  min-height: 49px;
+  justify-content: center;
+  gap: 12px;
+  border-radius: 13px;
+  box-shadow: 0 8px 25px #8173ff30;
+}
+
+.profile-panel .notice {
+  max-width: 470px;
+  border-radius: 13px;
+}
+
+@keyframes profileAppear {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 650px) {
+  .profile-panel {
+    padding: 24px 18px;
+  }
+
+  .profile-panel h2 {
+    font-size: 25px;
+  }
+
+  .profile-avatar {
+    width: 88px;
+    height: 88px;
+    border-radius: 25px;
+    font-size: 34px;
+  }
+}
