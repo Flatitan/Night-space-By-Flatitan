@@ -195,4 +195,26 @@
   align-items: center;
   gap: 10px;
 }
+/* ACCOUNT PLAN BADGE */
 
+.account-plan {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 15px;
+  margin: -12px 0 25px;
+  border: 1px solid #8e9bb52b;
+  border-radius: 30px;
+  background: #182235;
+  color: #aebbd2;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.plan-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #8795ad;
+  box-shadow: 0 0 9px #8795ad66;
+}
