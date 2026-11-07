@@ -366,13 +366,27 @@ $('account-plan-label').textContent = isOwner
 $('account-plan').classList.toggle('owner', isOwner);
   $('side-name').textContent = name;
   $('side-email').textContent = currentUser.email || '';
-  $('side-avatar').textContent = initials(name);
-  $('profile-avatar').textContent = initials(name);
+  setAvatar($('side-avatar'), currentProfile.avatar_url, name);
+  setAvatar($('profile-avatar'), currentProfile.avatar_url, name);
   $('profile-name').value = name;
   $('profile-email').value = currentUser.email || '';
   const confirmed = Boolean(currentUser.email_confirmed_at);
   $('email-state').textContent = confirmed ? '✓ Email подтверждён' : 'Письмо подтверждения ещё не подтверждено.';
   $('email-state').style.color = confirmed ? '#91d9bb' : '#f1c27d';
+}
+function setAvatar(element, url, name) {
+  if (!element) return;
+
+  element.textContent = initials(name);
+
+  element.style.backgroundImage = '';
+  element.style.backgroundSize = 'cover';
+  element.style.backgroundPosition = 'center';
+
+  if (url) {
+    element.textContent = '';
+    element.style.backgroundImage = `url("${url}")`;
+  }
 }
 async function loadPeople() {
   const list = $('people-list');
