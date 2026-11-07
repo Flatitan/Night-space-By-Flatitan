@@ -378,7 +378,7 @@ async function loadPeople() {
   const list = $('people-list');
   list.innerHTML = '<div class="empty-state">Загружаем пользователей…</div>';
   const { data, error } = await supabase.from('profiles')
-    .select('id, display_name, email, last_seen_at')
+    .select('id, display_name, email, last_seen_at, is_owner, plan')
     .neq('id', currentUser.id)
     .order('display_name', { ascending: true });
   if (error) {
