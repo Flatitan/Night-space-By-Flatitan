@@ -392,7 +392,7 @@ async function loadPeople() {
   const list = $('people-list');
   list.innerHTML = '<div class="empty-state">Загружаем пользователей…</div>';
   const { data, error } = await supabase.from('profiles')
-    .select('id, display_name, email, last_seen_at, is_owner, plan')
+    .select('id, display_name, email, last_seen_at, is_owner, plan, avatar_url')
     .neq('id', currentUser.id)
     .order('display_name', { ascending: true });
   if (error) {
@@ -425,7 +425,7 @@ function renderPeople() {
     button.className = `person ${selectedPerson?.id === person.id ? 'selected' : ''}`;
     const avatar = document.createElement('span');
     avatar.className = 'mini-avatar';
-    avatar.textContent = initials(person.display_name);
+    setAvatar(avatar, person.avatar_url, person.display_name);
     setOnlineIndicator(avatar, onlineUserIds.has(person.id));
     
     const info = document.createElement('span');
@@ -479,7 +479,7 @@ function renderGroupMemberOptions() {
     checkbox.name = 'group-member';
     const avatar = document.createElement('span');
     avatar.className = 'mini-avatar';
-    avatar.textContent = initials(person.display_name);
+    setAvatar(avatar, person.avatar_url, person.display_name);
     setOnlineIndicator(avatar, onlineUserIds.has(person.id));
     
     const name = document.createElement('span');
@@ -711,7 +711,11 @@ async function openChat(person) {
   subscribeToMessages();
 }
 function openPublicProfile(person) {
-  $('public-profile-avatar').textContent = initials(person.display_name);
+  setAvatar(
+  $('public-profile-avatar'),
+  person.avatar_url,
+  person.display_name
+);
   $('public-profile-name').textContent = person.display_name || 'Пользователь';
 
   const badgeBox = $('public-profile-badge');
@@ -865,7 +869,80 @@ const { error } = await supabase
   showNotice(profileMessage, 'Профиль сохранён.', 'success');
   await loadPeople();
 });
+$('avatar-file').addEventListener('change', async event => {
+  const file = event.target.files[0];
+  if (!file) return;
 
+  hideNotice(profileMessage);
+
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+    showNotice(profileMessage, 'Выбери JPG, PNG или WEBP.', 'error');
+    event.target.value = '';
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    showNotice(profileMessage, 'Фотография должна быть не больше 5 МБ.', 'error');
+    event.target.value = '';
+    return;
+  }
+
+  const extension = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp'
+  }[file.type];
+
+  const filePath = `${currentUser.id}/${crypto.randomUUID()}.${extension}`;
+
+  const uploadButton = document.querySelector('.avatar-upload-btn');
+  uploadButton.textContent = 'Загружаем фотографию…';
+
+  const { error: uploadError } = await supabase.storage
+    .from('avatars')
+    .upload(filePath, file, {
+      contentType: file.type,
+      upsert: false
+    });
+
+  if (uploadError) {
+    showNotice(profileMessage, 'Ошибка загрузки: ' + uploadError.message, 'error');
+    uploadButton.textContent = '📷 Загрузить фотографию';
+    event.target.value = '';
+    return;
+  }
+
+  const { data: urlData } = supabase.storage
+    .from('avatars')
+    .getPublicUrl(filePath);
+
+  const avatarUrl = urlData.publicUrl;
+
+  const { error: updateError } = await supabase
+    .from('profiles')
+    .update({ avatar_url: avatarUrl })
+    .eq('id', currentUser.id);
+
+  if (updateError) {
+    await supabase.storage.from('avatars').remove([filePath]);
+    showNotice(profileMessage, 'Не удалось сохранить фотографию: ' + updateError.message, 'error');
+    uploadButton.textContent = '📷 Загрузить фотографию';
+    event.target.value = '';
+    return;
+  }
+
+  currentProfile = { ...currentProfile, avatar_url: avatarUrl };
+
+  setAvatar($('side-avatar'), avatarUrl, currentProfile.display_name);
+  setAvatar($('profile-avatar'), avatarUrl, currentProfile.display_name);
+
+  uploadButton.textContent = '📷 Загрузить фотографию';
+  event.target.value = '';
+
+  showNotice(profileMessage, 'Фотография успешно загружена!', 'success');
+
+  await loadPeople();
+});
 $('signup-form').addEventListener('submit', async event => {
   event.preventDefault();
   hideNotice(authMessage);
