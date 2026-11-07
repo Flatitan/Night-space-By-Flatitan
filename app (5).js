@@ -436,7 +436,12 @@ if (person.is_owner) {
       : formatLastSeen(person.last_seen_at);
     info.append(name, status);
     button.append(avatar, info);
-    button.addEventListener('click', () => openPublicProfile(person));
+    button.addEventListener('click', () => openChat(person));
+
+avatar.addEventListener('click', (event) => {
+  event.stopPropagation();
+  openPublicProfile(person);
+});
     list.append(button);
   });
 }
