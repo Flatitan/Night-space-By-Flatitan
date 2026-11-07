@@ -724,11 +724,20 @@ $('message-form').addEventListener('submit', async event => {
   if (!body || !selectedPerson) return;
   const button = $('message-form').querySelector('button');
   button.disabled = true;
-  const { data, error } = await supabase.from('messages').insert({
-    sender_id: currentUser.id,
-    receiver_id: selectedPerson.id,
-    body
-  }).select('id, sender_id, receiver_id, body, created_at').single();
+const { data: authData, error: authError } = await supabase.auth.getUser();
+
+console.log('MESSAGE DEBUG:', {
+  currentUserId: currentUser?.id,
+  authUserId: authData?.user?.id,
+  authError: authError?.message,
+  receiverId: selectedPerson?.id
+});
+
+const { data, error } = await supabase.from('messages').insert({
+  sender_id: authData?.user?.id,
+  receiver_id: selectedPerson.id,
+  body
+}).select('id, sender_id, receiver_id, body, created_at').single();
   button.disabled = false;
   if (error) {
     alert(`Не удалось отправить сообщение: ${friendlyError(error)}\nПроверь SQL-настройку из README.`);
