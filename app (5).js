@@ -869,6 +869,58 @@ const { error } = await supabase
   showNotice(profileMessage, 'Профиль сохранён.', 'success');
   await loadPeople();
 });
+$('avatar-remove-btn').addEventListener('click', async () => {
+  if (!currentProfile?.avatar_url) {
+    showNotice(profileMessage, 'Фотография ещё не загружена.', 'error');
+    return;
+  }
+
+  const button = $('avatar-remove-btn');
+  button.disabled = true;
+  button.textContent = 'Удаляем…';
+
+  const oldPath = currentProfile.avatar_path;
+
+  if (oldPath) {
+    const { error: deleteError } = await supabase.storage
+      .from('avatars')
+      .remove([oldPath]);
+
+    if (deleteError) {
+      showNotice(profileMessage, 'Ошибка удаления: ' + deleteError.message, 'error');
+      button.disabled = false;
+      button.textContent = 'Удалить фотографию';
+      return;
+    }
+  }
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ avatar_url: null, avatar_path: null })
+    .eq('id', currentUser.id);
+
+  if (error) {
+    showNotice(profileMessage, 'Ошибка профиля: ' + error.message, 'error');
+    button.disabled = false;
+    button.textContent = 'Удалить фотографию';
+    return;
+  }
+
+  currentProfile = {
+    ...currentProfile,
+    avatar_url: null,
+    avatar_path: null
+  };
+
+  setAvatar($('side-avatar'), null, currentProfile.display_name);
+  setAvatar($('profile-avatar'), null, currentProfile.display_name);
+
+  await loadPeople();
+
+  showNotice(profileMessage, 'Фотография удалена!', 'success');
+  button.disabled = false;
+  button.textContent = 'Удалить фотографию';
+});
 $('avatar-file').addEventListener('change', async event => {
   const file = event.target.files[0];
   if (!file) return;
