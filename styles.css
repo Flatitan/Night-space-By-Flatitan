@@ -331,3 +331,38 @@
   background: #9b83ff20;
   border: 1px solid #9b83ff55;
 }
+/* Кнопки управления фотографией */
+.avatar-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: -12px 0 24px;
+}
+
+.avatar-upload-btn,
+.avatar-remove-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.avatar-upload-btn {
+  background: linear-gradient(100deg, #a69aff, #7c83ff);
+  color: #101326;
+}
+
+.avatar-remove-btn {
+  background: #ffffff08;
+  color: #b9c2d4;
+  border: 1px solid #ffffff18;
+}
+
+.profile-avatar,
+.mini-avatar {
+  background-repeat: no-repeat;
+}
