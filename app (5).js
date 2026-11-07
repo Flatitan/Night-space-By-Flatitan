@@ -84,9 +84,14 @@ enableNotificationsButton?.addEventListener('click', async () => {
       .select('id')
       .eq('endpoint', subscription.endpoint)
       .maybeSingle();
-
     if (findError) throw findError;
+const { data: authData, error: authError } = await supabase.auth.getUser();
 
+console.log('PUSH DEBUG:', {
+  currentUserId: currentUser.id,
+  supabaseUserId: authData?.user?.id,
+  authError: authError?.message
+});
     if (!existing) {
       const { error: insertError } = await supabase
         .from('push_subscriptions')
