@@ -297,29 +297,20 @@ $('tab-signup').addEventListener('click', () => showAuthTab('signup'));
 $('go-signup').addEventListener('click', () => showAuthTab('signup'));
 
 function showAuth() {
-  const userId = currentUser?.id;
-
-if (userId && supabase) {
-  supabase
-    .from('profiles')
-    .update({ last_seen_at: new Date().toISOString() })
-    .eq('id', userId)
-    .then(({ error }) => {
-      if (error) console.error('Last seen error:', error);
-    });
-}
   authView.classList.remove('hidden');
   appView.classList.add('hidden');
+
   if (messageChannel && supabase) supabase.removeChannel(messageChannel);
   if (groupMessageChannel && supabase) supabase.removeChannel(groupMessageChannel);
   if (presenceChannel && supabase) {
-  supabase.removeChannel(presenceChannel);
-}
+    supabase.removeChannel(presenceChannel);
+  }
 
-presenceChannel = null;
-onlineUserIds.clear();
+  presenceChannel = null;
+  onlineUserIds.clear();
   messageChannel = null;
   groupMessageChannel = null;
+
   currentUser = null;
   currentProfile = null;
   selectedPerson = null;
