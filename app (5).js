@@ -920,7 +920,10 @@ $('avatar-file').addEventListener('change', async event => {
 
   const { error: updateError } = await supabase
     .from('profiles')
-    .update({ avatar_url: avatarUrl })
+    .update({
+  avatar_url: avatarUrl,
+  avatar_path: filePath
+})
     .eq('id', currentUser.id);
 
   if (updateError) {
