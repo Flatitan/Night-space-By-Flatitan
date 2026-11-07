@@ -159,3 +159,50 @@
     font-size: 34px;
   }
 }
+/* PREMIUM ACCOUNT DETAILS */
+
+.profile-form {
+  padding: 25px;
+  border: 1px solid #a99cff24;
+  border-radius: 19px;
+  background: linear-gradient(145deg, #192238cc, #101827);
+  box-shadow: 0 15px 40px #0003;
+}
+
+.profile-form label {
+  display: grid;
+  gap: 11px;
+}
+
+.profile-form label::first-line {
+  color: #c7c4e5;
+}
+
+.profile-form input {
+  min-height: 50px;
+  padding: 14px 16px;
+  border-radius: 12px;
+}
+
+.profile-form .primary-btn {
+  margin-top: 5px;
+  min-height: 51px;
+  letter-spacing: .2px;
+}
+
+.profile-panel .eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-panel .eyebrow::after {
+  content: "PREMIUM";
+  font-size: 9px;
+  letter-spacing: 1px;
+  padding: 5px 9px;
+  border: 1px solid #a99cff40;
+  border-radius: 20px;
+  background: #9486ff16;
+  color: #c1b7ff;
+}
