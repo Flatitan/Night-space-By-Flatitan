@@ -345,7 +345,7 @@ document.querySelectorAll('.nav-item').forEach(btn => btn.addEventListener('clic
 async function loadMyProfile() {
   if (!currentUser) return;
   const { data, error } = await supabase.from('profiles')
-    .select('id, display_name, email, created_at, is_owner, plan')
+    .select('id, display_name, email, created_at, is_owner, plan, avatar_url')
     .eq('id', currentUser.id).maybeSingle();
   if (error) console.error('Не удалось загрузить профиль:', error.message);
   currentProfile = data || {
