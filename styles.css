@@ -307,3 +307,27 @@
   .premium-panel { padding: 22px 16px; }
   .premium-prices { grid-template-columns: 1fr; }
 }
+/* OWNER / PREMIUM BADGES */
+.account-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 7px;
+  padding: 3px 7px;
+  border-radius: 6px;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .7px;
+  vertical-align: middle;
+}
+
+.owner-badge {
+  color: #ffe5a3;
+  background: #d49b2520;
+  border: 1px solid #d49b2555;
+}
+
+.premium-badge {
+  color: #c9baff;
+  background: #9b83ff20;
+  border: 1px solid #9b83ff55;
+}
