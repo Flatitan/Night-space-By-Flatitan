@@ -418,6 +418,18 @@ function renderPeople() {
     info.className = 'person-info';
     const name = document.createElement('b');
     name.textContent = person.display_name || 'Пользователь';
+
+if (person.is_owner) {
+  const badge = document.createElement('span');
+  badge.className = 'account-badge owner-badge';
+  badge.textContent = 'OWNER';
+  name.append(badge);
+} else if (person.plan === 'premium') {
+  const badge = document.createElement('span');
+  badge.className = 'account-badge premium-badge';
+  badge.textContent = 'PREMIUM';
+  name.append(badge);
+}
     const status = document.createElement('small');
     status.textContent = onlineUserIds.has(person.id)
       ? '🟢 В сети'
