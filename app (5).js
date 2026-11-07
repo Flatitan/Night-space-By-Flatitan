@@ -354,6 +354,16 @@ async function loadMyProfile() {
     email: currentUser.email
   };
   const name = currentProfile.display_name || 'Пользователь';
+  const isOwner = currentProfile.is_owner === true;
+const isPremium = currentProfile.plan === 'premium';
+
+$('account-plan-label').textContent = isOwner
+  ? '👑 OWNER'
+  : isPremium
+    ? '✦ PREMIUM'
+    : 'Бесплатный тариф';
+
+$('account-plan').classList.toggle('owner', isOwner);
   $('side-name').textContent = name;
   $('side-email').textContent = currentUser.email || '';
   $('side-avatar').textContent = initials(name);
