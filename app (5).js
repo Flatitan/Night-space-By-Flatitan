@@ -391,6 +391,40 @@ function setAvatar(element, url, name) {
     element.style.cursor = '';
   }
 }
+function openPhotoViewer(url) {
+  if (!url) return;
+
+  $('photo-viewer-image').src = url;
+  $('photo-viewer').classList.remove('hidden');
+}
+
+function closePhotoViewer() {
+  $('photo-viewer').classList.add('hidden');
+  $('photo-viewer-image').src = '';
+}
+
+document.addEventListener('click', event => {
+  const avatar = event.target.closest(
+    '#side-avatar, #profile-avatar, #chat-avatar, #public-profile-avatar, .mini-avatar'
+  );
+
+  if (avatar?.dataset.photoUrl) {
+    openPhotoViewer(avatar.dataset.photoUrl);
+  }
+});
+
+$('photo-viewer-close').addEventListener('click', closePhotoViewer);
+
+$('photo-viewer').addEventListener('click', event => {
+  if (event.target.id === 'photo-viewer') {
+    closePhotoViewer();
+  }
+});
+
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') closePhotoViewer();
+});
+
 async function loadPeople() {
   const list = $('people-list');
   list.innerHTML = '<div class="empty-state">Загружаем пользователей…</div>';
