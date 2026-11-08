@@ -348,12 +348,16 @@ async function loadMyProfile() {
     .select('id, display_name, email, created_at, is_owner, plan, avatar_url, bio, avatar_path')
     .eq('id', currentUser.id).maybeSingle();
   if (error) console.error('Не удалось загрузить профиль:', error.message);
-  currentProfile = data || {
-    $('profile-bio').value = currentProfile.bio || '';
+currentProfile = data || {
     id: currentUser.id,
     display_name: currentUser.user_metadata?.display_name || currentUser.email?.split('@')[0] || 'Пользователь',
-    email: currentUser.email
-  };
+    email: currentUser.email,
+    bio: '',
+    avatar_url: null,
+    avatar_path: null
+};
+
+$('profile-bio').value = currentProfile.bio || '';
   const name = currentProfile.display_name || 'Пользователь';
   const isOwner = currentProfile.is_owner === true;
 const isPremium = currentProfile.plan === 'premium';
