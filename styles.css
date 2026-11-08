@@ -466,3 +466,30 @@
 .edit-message-btn:hover {
   background: #9b83ff30;
 }
+.message-actions {
+  display: none;
+  gap: 6px;
+  margin-top: 7px;
+}
+
+.message-actions.open {
+  display: flex;
+}
+
+.message-actions button {
+  padding: 6px 10px;
+  border: 1px solid #ffffff18;
+  border-radius: 8px;
+  background: #171526;
+  color: #d8d0ff;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.message-actions button:hover {
+  background: #29233e;
+}
+
+.message-actions button:last-child {
+  color: #ff8b9b;
+}
