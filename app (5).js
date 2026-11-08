@@ -867,6 +867,12 @@ function addMessageBubble(message) {
   if (message.edited_at) {
   time.textContent += ' · изменено';
 }
+    if (message.sender_id === currentUser.id) {
+    const readStatus = document.createElement('span');
+    readStatus.className = 'read-status';
+    readStatus.textContent = message.read_at ? ' · Прочитано' : ' · Отправлено';
+    time.append(readStatus);
+  }
   wrap.append(bubble, time);
 
   if (message.sender_id === currentUser.id) {
