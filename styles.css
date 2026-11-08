@@ -404,3 +404,28 @@
   font-size: 22px;
   cursor: pointer;
 }
+#profile-bio {
+  width: 100%;
+  min-height: 90px;
+  resize: vertical;
+  padding: 12px 14px;
+  margin-top: 8px;
+  border: 1px solid #ffffff18;
+  border-radius: 12px;
+  background: #ffffff08;
+  color: #fff;
+  font: inherit;
+  outline: none;
+}
+
+#profile-bio:focus {
+  border-color: #9b83ff;
+  box-shadow: 0 0 0 3px #9b83ff20;
+}
+
+#public-profile-bio {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 12px 0 20px;
+  color: #b9b2d0;
+}
