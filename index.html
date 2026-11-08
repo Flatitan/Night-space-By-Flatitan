@@ -155,6 +155,15 @@
        </div>
           <form id="profile-form" class="profile-form">
             <label>Имя пользователя<input id="profile-name" type="text" minlength="2" maxlength="40" required /></label>
+            <label>
+  О себе
+  <textarea
+    id="profile-bio"
+    maxlength="300"
+    rows="3"
+    placeholder="Расскажи немного о себе..."
+  ></textarea>
+</label>
             <label>Email<input id="profile-email" type="email" disabled /></label>
             <div id="email-state" class="email-state"></div>
             <button class="primary-btn" type="submit">Сохранить изменения <span>→</span></button>
