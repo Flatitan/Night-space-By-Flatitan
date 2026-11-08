@@ -452,3 +452,17 @@
   font-size: 13px;
   margin-top: 8px;
 }
+.edit-message-btn {
+  margin-top: 5px;
+  padding: 5px 10px;
+  border: 1px solid #9b83ff55;
+  border-radius: 8px;
+  background: #9b83ff15;
+  color: #b9a6ff;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.edit-message-btn:hover {
+  background: #9b83ff30;
+}
