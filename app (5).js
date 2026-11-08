@@ -345,10 +345,11 @@ document.querySelectorAll('.nav-item').forEach(btn => btn.addEventListener('clic
 async function loadMyProfile() {
   if (!currentUser) return;
   const { data, error } = await supabase.from('profiles')
-    .select('id, display_name, email, created_at, is_owner, plan, avatar_url')
+    .select('id, display_name, email, created_at, is_owner, plan, avatar_url, bio, avatar_path')
     .eq('id', currentUser.id).maybeSingle();
   if (error) console.error('Не удалось загрузить профиль:', error.message);
   currentProfile = data || {
+    $('profile-bio').value = currentProfile.bio || '';
     id: currentUser.id,
     display_name: currentUser.user_metadata?.display_name || currentUser.email?.split('@')[0] || 'Пользователь',
     email: currentUser.email
@@ -880,30 +881,52 @@ const { data, error } = await supabase.from('messages').insert({
 $('profile-form').addEventListener('submit', async event => {
   event.preventDefault();
   hideNotice(profileMessage);
+
   const displayName = $('profile-name').value.trim();
+  const bio = $('profile-bio').value.trim();
+
   if (displayName.length < 2) {
     showNotice(profileMessage, 'Имя должно содержать минимум 2 символа.', 'error');
     return;
   }
+
+  if (bio.length > 300) {
+    showNotice(profileMessage, 'Описание не должно превышать 300 символов.', 'error');
+    return;
+  }
+
   const form = event.currentTarget;
   setBusy(form, true);
-const { error } = await supabase
-  .from('profiles')
-  .update({
-    display_name: displayName,
-    updated_at: new Date().toISOString()
-  })
-  .eq('id', currentUser.id);
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      display_name: displayName,
+      bio: bio,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', currentUser.id);
+
   setBusy(form, false);
+
   if (error) {
     showNotice(profileMessage, `Не удалось сохранить профиль: ${friendlyError(error)}`, 'error');
     return;
   }
-  currentProfile = { ...currentProfile, display_name: displayName };
+
+  currentProfile = {
+    ...currentProfile,
+    display_name: displayName,
+    bio: bio
+  };
+
   $('side-name').textContent = displayName;
-  $('side-avatar').textContent = initials(displayName);
-  $('profile-avatar').textContent = initials(displayName);
+
+  setAvatar($('side-avatar'), currentProfile.avatar_url, displayName);
+  setAvatar($('profile-avatar'), currentProfile.avatar_url, displayName);
+
   showNotice(profileMessage, 'Профиль сохранён.', 'success');
+
   await loadPeople();
 });
 $('avatar-remove-btn').addEventListener('click', async () => {
