@@ -954,16 +954,57 @@ async function deleteMessage(messageId) {
   await loadMessages();
 }
 function subscribeToMessages() {
-  if (messageChannel && supabase) supabase.removeChannel(messageChannel);
+  if (messageChannel && supabase) {
+    supabase.removeChannel(messageChannel);
+  }
+
   if (!selectedPerson) return;
+
   const chatPartnerId = selectedPerson.id;
-  messageChannel = supabase.channel(`chat-${currentUser.id}-${chatPartnerId}-${Date.now()}`)
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+
+  messageChannel = supabase
+    .channel(`chat-${currentUser.id}-${chatPartnerId}-${Date.now()}`)
+
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'messages'
+    }, payload => {
       const message = payload.new;
-      const belongsToChat = (message.sender_id === currentUser.id && message.receiver_id === chatPartnerId) ||
+
+      const belongsToChat =
+        (message.sender_id === currentUser.id && message.receiver_id === chatPartnerId) ||
         (message.sender_id === chatPartnerId && message.receiver_id === currentUser.id);
+
       if (belongsToChat) addMessageBubble(message);
-    }).subscribe();
+    })
+
+    .on('postgres_changes', {
+      event: 'UPDATE',
+      schema: 'public',
+      table: 'messages'
+    }, payload => {
+      const message = payload.new;
+
+      if (message.sender_id !== currentUser.id ||
+          message.receiver_id !== chatPartnerId) return;
+
+      const wrap = document.querySelector(
+        `[data-message-id="${CSS.escape(message.id)}"]`
+      );
+
+      if (!wrap) return;
+
+      const readStatus = wrap.querySelector('.read-status');
+
+      if (readStatus) {
+        readStatus.textContent = message.read_at
+          ? ' · Прочитано'
+          : ' · Отправлено';
+      }
+    })
+
+    .subscribe();
 }
 $('message-form').addEventListener('submit', async event => {
   event.preventDefault();
