@@ -890,6 +890,24 @@ async function editMessage(messageId, oldText) {
 
   await loadMessages();
 }
+async function deleteMessage(messageId) {
+  const confirmed = confirm('Точно удалить это сообщение?');
+
+  if (!confirmed) return;
+
+  const { error } = await supabase
+    .from('messages')
+    .delete()
+    .eq('id', messageId)
+    .eq('sender_id', currentUser.id);
+
+  if (error) {
+    alert('Не удалось удалить сообщение: ' + friendlyError(error));
+    return;
+  }
+
+  await loadMessages();
+}
 function subscribeToMessages() {
   if (messageChannel && supabase) supabase.removeChannel(messageChannel);
   if (!selectedPerson) return;
