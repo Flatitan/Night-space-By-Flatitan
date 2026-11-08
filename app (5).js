@@ -826,8 +826,42 @@ function addMessageBubble(message) {
   time.className = 'message-time';
   time.textContent = new Date(message.created_at).toLocaleString('ru-RU', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' });
   wrap.append(bubble, time);
+
+if (message.sender_id === currentUser.id) {
+  // кнопка редактирования
+}
   container.append(wrap);
   container.scrollTop = container.scrollHeight;
+}
+async function editMessage(messageId, oldText) {
+  const newText = prompt('Измени своё сообщение:', oldText);
+
+  if (newText === null) return;
+
+  const body = newText.trim();
+
+  if (!body) {
+    alert('Сообщение не может быть пустым.');
+    return;
+  }
+
+  if (body.length > 2000) {
+    alert('Максимум 2000 символов.');
+    return;
+  }
+
+  const { error } = await supabase
+    .from('messages')
+    .update({ body })
+    .eq('id', messageId)
+    .eq('sender_id', currentUser.id);
+
+  if (error) {
+    alert('Не удалось изменить сообщение: ' + friendlyError(error));
+    return;
+  }
+
+  await loadMessages();
 }
 function subscribeToMessages() {
   if (messageChannel && supabase) supabase.removeChannel(messageChannel);
