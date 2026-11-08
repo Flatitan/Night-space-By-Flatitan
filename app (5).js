@@ -828,7 +828,12 @@ function addMessageBubble(message) {
   wrap.append(bubble, time);
 
 if (message.sender_id === currentUser.id) {
-  // кнопка редактирования
+  const editButton = document.createElement('button');
+  editButton.className = 'edit-message-btn';
+  editButton.textContent = 'Изменить';
+  editButton.type = 'button';
+  editButton.onclick = () => editMessage(message.id, bubble.textContent);
+  wrap.append(editButton);
 }
   container.append(wrap);
   container.scrollTop = container.scrollHeight;
