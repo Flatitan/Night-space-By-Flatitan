@@ -378,14 +378,17 @@ function setAvatar(element, url, name) {
   if (!element) return;
 
   element.textContent = initials(name);
-
   element.style.backgroundImage = '';
   element.style.backgroundSize = 'cover';
   element.style.backgroundPosition = 'center';
+  element.dataset.photoUrl = url || '';
 
   if (url) {
     element.textContent = '';
     element.style.backgroundImage = `url("${url}")`;
+    element.style.cursor = 'zoom-in';
+  } else {
+    element.style.cursor = '';
   }
 }
 async function loadPeople() {
