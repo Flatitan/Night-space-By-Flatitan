@@ -636,6 +636,12 @@ function addGroupMessageBubble(message, senderName = 'Пользователь')
   time.textContent = new Date(message.created_at).toLocaleString('ru-RU', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' });
   if (message.edited_at) {
   time.textContent += ' · изменено';
+    if (message.sender_id === currentUser.id) {
+  const readStatus = document.createElement('span');
+  readStatus.className = 'read-status';
+  readStatus.textContent = message.read_at ? ' · Прочитано' : ' · Отправлено';
+  time.append(readStatus);
+}
 }
   wrap.append(bubble, time);
   container.append(wrap);
@@ -800,7 +806,7 @@ async function loadMessages() {
   if (!selectedPerson) return;
   const token = ++loadMessagesToken;
   const { data, error } = await supabase.from('messages')
-    .select('id, sender_id, receiver_id, body, created_at, edited_at')
+    .select('id, sender_id, receiver_id, body, created_at, edited_at, read_at')
     .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${selectedPerson.id}),and(sender_id.eq.${selectedPerson.id},receiver_id.eq.${currentUser.id})`)
     .order('created_at', { ascending: true })
     .limit(200);
@@ -809,6 +815,26 @@ async function loadMessages() {
     console.error(error);
     $('messages-list').textContent = 'Не удалось загрузить сообщения. Проверь SQL и политики доступа из README.';
     return;
+  }
+    const unreadMessages = (data || []).filter(message =>
+    message.receiver_id === currentUser.id && !message.read_at
+  );
+
+  if (unreadMessages.length) {
+    const readAt = new Date().toISOString();
+
+    const { error: readError } = await supabase
+      .from('messages')
+      .update({ read_at: readAt })
+      .in('id', unreadMessages.map(message => message.id));
+
+    if (readError) {
+      console.error('Не удалось отметить сообщения прочитанными:', readError);
+    } else {
+      unreadMessages.forEach(message => {
+        message.read_at = readAt;
+      });
+    }
   }
   const container = $('messages-list');
   container.replaceChildren();
