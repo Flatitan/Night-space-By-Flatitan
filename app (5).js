@@ -814,27 +814,49 @@ async function loadMessages() {
 }
 function addMessageBubble(message) {
   const container = $('messages-list');
-  // Realtime может прислать сообщение, которое уже попало в результат загрузки.
+
   if (container.querySelector(`[data-message-id="${CSS.escape(message.id)}"]`)) return;
+
   const wrap = document.createElement('div');
   wrap.className = `message ${message.sender_id === currentUser.id ? 'mine' : ''}`;
   wrap.dataset.messageId = message.id;
+
   const bubble = document.createElement('div');
   bubble.className = 'bubble';
   bubble.textContent = message.body;
+
   const time = document.createElement('div');
   time.className = 'message-time';
-  time.textContent = new Date(message.created_at).toLocaleString('ru-RU', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' });
+  time.textContent = new Date(message.created_at).toLocaleString('ru-RU', {
+    hour: '2-digit',
+    minute: '2-digit',
+    day: '2-digit',
+    month: 'short'
+  });
+
   wrap.append(bubble, time);
 
-if (message.sender_id === currentUser.id) {
-  const editButton = document.createElement('button');
-  editButton.className = 'edit-message-btn';
-  editButton.textContent = 'Изменить';
-  editButton.type = 'button';
-  editButton.onclick = () => editMessage(message.id, bubble.textContent);
-  wrap.append(editButton);
-}
+  if (message.sender_id === currentUser.id) {
+    const menu = document.createElement('div');
+    menu.className = 'message-actions';
+
+    const editButton = document.createElement('button');
+    editButton.textContent = '✏️ Изменить';
+    editButton.type = 'button';
+    editButton.onclick = () => editMessage(message.id, bubble.textContent);
+
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = '🗑️ Удалить';
+    deleteButton.type = 'button';
+    deleteButton.onclick = () => deleteMessage(message.id);
+
+    menu.append(editButton, deleteButton);
+    wrap.append(menu);
+
+    bubble.style.cursor = 'pointer';
+    bubble.onclick = () => menu.classList.toggle('open');
+  }
+
   container.append(wrap);
   container.scrollTop = container.scrollHeight;
 }
