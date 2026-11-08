@@ -430,7 +430,7 @@ async function loadPeople() {
   const list = $('people-list');
   list.innerHTML = '<div class="empty-state">Загружаем пользователей…</div>';
   const { data, error } = await supabase.from('profiles')
-    .select('id, display_name, email, last_seen_at, is_owner, plan, avatar_url')
+    .select('id, display_name, email, last_seen_at, is_owner, plan, avatar_url, bio')
     .neq('id', currentUser.id)
     .order('display_name', { ascending: true });
   if (error) {
@@ -755,7 +755,8 @@ function openPublicProfile(person) {
   person.display_name
 );
   $('public-profile-name').textContent = person.display_name || 'Пользователь';
-
+  $('public-profile-bio').textContent = person.bio || 'Пользователь пока ничего не рассказал о себе.';
+  
   const badgeBox = $('public-profile-badge');
   badgeBox.replaceChildren();
 
