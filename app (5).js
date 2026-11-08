@@ -345,7 +345,7 @@ document.querySelectorAll('.nav-item').forEach(btn => btn.addEventListener('clic
 async function loadMyProfile() {
   if (!currentUser) return;
   const { data, error } = await supabase.from('profiles')
-    .select('id, display_name, email, created_at, is_owner, plan, avatar_url, bio, avatar_path')
+    .select('id, display_name, email, created_at, is_owner, plan, avatar_url, bio, avatar_path, status_text')
     .eq('id', currentUser.id).maybeSingle();
   if (error) console.error('Не удалось загрузить профиль:', error.message);
 currentProfile = data || {
@@ -357,7 +357,8 @@ currentProfile = data || {
     avatar_path: null
 };
 
-$('profile-bio').value = currentProfile.bio || '';
+  $('profile-bio').value = currentProfile.bio || '';
+  $('profile-status').value = currentProfile.status_text || '';
   const name = currentProfile.display_name || 'Пользователь';
   const isOwner = currentProfile.is_owner === true;
 const isPremium = currentProfile.plan === 'premium';
@@ -760,7 +761,8 @@ function openPublicProfile(person) {
 );
   $('public-profile-name').textContent = person.display_name || 'Пользователь';
   $('public-profile-bio').textContent = person.bio || 'Пользователь пока ничего не рассказал о себе.';
-  
+  $('public-profile-status-text').textContent =
+  person.status_text || 'Без статуса';
   const badgeBox = $('public-profile-badge');
   badgeBox.replaceChildren();
 
@@ -905,11 +907,12 @@ $('profile-form').addEventListener('submit', async event => {
 
   const { error } = await supabase
     .from('profiles')
-    .update({
-      display_name: displayName,
-      bio: bio,
-      updated_at: new Date().toISOString()
-    })
+.update({
+  display_name: displayName,
+  bio: bio,
+  status_text: $('profile-status').value,
+  updated_at: new Date().toISOString()
+})
     .eq('id', currentUser.id);
 
   setBusy(form, false);
@@ -919,11 +922,12 @@ $('profile-form').addEventListener('submit', async event => {
     return;
   }
 
-  currentProfile = {
-    ...currentProfile,
-    display_name: displayName,
-    bio: bio
-  };
+currentProfile = {
+  ...currentProfile,
+  display_name: displayName,
+  bio: bio,
+  status_text: $('profile-status').value
+};
 
   $('side-name').textContent = displayName;
 
