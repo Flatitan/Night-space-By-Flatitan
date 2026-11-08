@@ -879,7 +879,10 @@ async function editMessage(messageId, oldText) {
 
   const { error } = await supabase
     .from('messages')
-    .update({ body })
+    .update({
+  body,
+  edited_at: new Date().toISOString()
+})
     .eq('id', messageId)
     .eq('sender_id', currentUser.id);
 
