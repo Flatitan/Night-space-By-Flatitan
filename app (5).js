@@ -634,6 +634,9 @@ function addGroupMessageBubble(message, senderName = 'Пользователь')
   const time = document.createElement('div');
   time.className = 'message-time';
   time.textContent = new Date(message.created_at).toLocaleString('ru-RU', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' });
+  if (message.edited_at) {
+  time.textContent += ' · изменено';
+}
   wrap.append(bubble, time);
   container.append(wrap);
   container.scrollTop = container.scrollHeight;
@@ -797,7 +800,7 @@ async function loadMessages() {
   if (!selectedPerson) return;
   const token = ++loadMessagesToken;
   const { data, error } = await supabase.from('messages')
-    .select('id, sender_id, receiver_id, body, created_at')
+    .select('id, sender_id, receiver_id, body, created_at, edited_at')
     .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${selectedPerson.id}),and(sender_id.eq.${selectedPerson.id},receiver_id.eq.${currentUser.id})`)
     .order('created_at', { ascending: true })
     .limit(200);
@@ -891,7 +894,10 @@ async function editMessage(messageId, oldText) {
     return;
   }
 
-  await loadMessages();
+  const container = $('messages-list');
+const oldScrollTop = container.scrollTop;
+await loadMessages();
+container.scrollTop = oldScrollTop;
 }
 async function deleteMessage(messageId) {
   const confirmed = confirm('Точно удалить это сообщение?');
