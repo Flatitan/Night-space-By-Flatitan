@@ -837,6 +837,9 @@ function addMessageBubble(message) {
     month: 'short'
   });
 
+  if (message.edited_at) {
+  time.textContent += ' · изменено';
+}
   wrap.append(bubble, time);
 
   if (message.sender_id === currentUser.id) {
