@@ -635,14 +635,15 @@ function addGroupMessageBubble(message, senderName = 'Пользователь')
   time.className = 'message-time';
   time.textContent = new Date(message.created_at).toLocaleString('ru-RU', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' });
   if (message.edited_at) {
-  time.textContent += ' · изменено';
-    if (message.sender_id === currentUser.id) {
-  const readStatus = document.createElement('span');
-  readStatus.className = 'read-status';
-  readStatus.textContent = message.read_at ? ' · Прочитано' : ' · Отправлено';
-  time.append(readStatus);
-}
-}
+    time.textContent += ' · изменено';
+  }
+
+  if (message.sender_id === currentUser.id) {
+    const readStatus = document.createElement('span');
+    readStatus.className = 'read-status';
+    readStatus.textContent = message.read_at ? ' · Прочитано' : ' · Отправлено';
+    time.append(readStatus);
+  }
   wrap.append(bubble, time);
   container.append(wrap);
   container.scrollTop = container.scrollHeight;
